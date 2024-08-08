@@ -15,6 +15,7 @@ const (
 	setHeadImageURL        = "https://api.weixin.qq.com/cgi-bin/account/modifyheadimage"
 	getSearchStatusURL     = "https://api.weixin.qq.com/wxa/getwxasearchstatus"
 	setSearchStatusURL     = "https://api.weixin.qq.com/wxa/changewxasearchstatus"
+	modifyDomainURL        = "https://api.weixin.qq.com/wxa/modify_domain"
 )
 
 // Basic 基础信息设置
@@ -53,10 +54,50 @@ func (basic *Basic) GetAccountBasicInfo() (*AccountBasicInfo, error) {
 	return result, nil
 }
 
-// modify_domain设置服务器域名
-// TODO
-// func (encryptor *Basic) modifyDomain() {
-// }
+// ModifyDomainParam 设置服务器域名参数
+type ModifyDomainParam struct {
+	Action          string   `json:"action"`          // 操作类型
+	Requestdomain   []string `json:"requestdomain"`   // request 合法域名
+	Wsrequestdomain []string `json:"wsrequestdomain"` // socket 合法域名
+	Uploaddomain    []string `json:"uploaddomain"`    // uploadFile 合法域名
+	Downloaddomain  []string `json:"downloaddomain"`  // downloadFile 合法域名
+	Udpdomain       []string `json:"udpdomain"`       // udp 合法域名
+	Tcpdomain       []string `json:"tcpdomain"`       // tcp 合法域名
+}
+
+// ModifyDomainResp 设置服务器域名结果
+type ModifyDomainResp struct {
+	util.CommonError
+	Requestdomain          []string `json:"requestdomain"`           // request 合法域名
+	Wsrequestdomain        []string `json:"wsrequestdomain"`         // socket 合法域名
+	Uploaddomain           []string `json:"uploaddomain"`            // uploadFile 合法域名
+	Downloaddomain         []string `json:"downloaddomain"`          // downloadFile 合法域名
+	Udpdomain              []string `json:"udpdomain"`               // udp 合法域名
+	Tcpdomain              []string `json:"tcpdomain"`               // tcp 合法域名
+	InvalidRequestdomain   []string `json:"invalid_requestdomain"`   // request 不合法域名
+	InvalidWsrequestdomain []string `json:"invalid_wsrequestdomain"` // socket 不合法域名
+	InvalidUploaddomain    []string `json:"invalid_uploaddomain"`    // uploadFile 不合法域名
+	InvalidDownloaddomain  []string `json:"invalid_downloaddomain"`  // downloadFile 不合法域名
+	InvalidUdpdomain       []string `json:"invalid_udpdomain"`       // udp 不合法域名
+	InvalidTcpdomain       []string `json:"invalid_tcpdomain"`       // tcp 不合法域名
+	NoIcpDomain            []string `json:"no_icp_domain"`           // 没有经过icp备案的域名
+}
+
+// ModifyDomain 设置服务器域名
+func (basic *Basic) ModifyDomain(param *ModifyDomainParam) (*ModifyDomainResp, error) {
+	ak, err := basic.GetAuthrAccessToken(basic.AppID)
+	if err != nil {
+		return nil, err
+	}
+	url := fmt.Sprintf("%s?access_token=%s", modifyDomainURL, ak)
+	data, err := util.PostJSON(url, param)
+	if err != nil {
+		return nil, err
+	}
+	res := &ModifyDomainResp{}
+	err = util.DecodeWithError(data, res, "ModifyDomain")
+	return res, err
+}
 
 // CheckNickNameResp 小程序名称检测结果
 type CheckNickNameResp struct {
