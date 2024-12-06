@@ -16,12 +16,13 @@ const (
 	getSearchStatusURL     = "https://api.weixin.qq.com/wxa/getwxasearchstatus"
 	setSearchStatusURL     = "https://api.weixin.qq.com/wxa/changewxasearchstatus"
 	modifyDomainURL        = "https://api.weixin.qq.com/wxa/modify_domain"
+	setWebviewDomainURL    = "https://api.weixin.qq.com/wxa/setwebviewdomain"
 )
 
 // Basic 基础信息设置
 type Basic struct {
 	*openContext.Context
-	appID string
+	appID string // 小程序 appid
 }
 
 // NewBasic new
@@ -38,7 +39,7 @@ type AccountBasicInfo struct {
 //
 //reference:https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/Mini_Programs/Mini_Program_Information_Settings.html
 func (basic *Basic) GetAccountBasicInfo() (*AccountBasicInfo, error) {
-	ak, err := basic.GetAuthrAccessToken(basic.AppID)
+	ak, err := basic.GetAuthrAccessToken(basic.appID)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +86,7 @@ type ModifyDomainResp struct {
 
 // ModifyDomain 设置服务器域名
 func (basic *Basic) ModifyDomain(param *ModifyDomainParam) (*ModifyDomainResp, error) {
-	ak, err := basic.GetAuthrAccessToken(basic.AppID)
+	ak, err := basic.GetAuthrAccessToken(basic.appID)
 	if err != nil {
 		return nil, err
 	}
@@ -99,6 +100,33 @@ func (basic *Basic) ModifyDomain(param *ModifyDomainParam) (*ModifyDomainResp, e
 	return res, err
 }
 
+// SetWebviewDomainParam 配置小程序业务域名参数
+type SetWebviewDomainParam struct {
+	Action        string   `json:"action"`        // 操作类型
+	Webviewdomain []string `json:"webviewdomain"` // 小程序业务域名
+}
+
+// SetWebviewDomainResp 配置小程序业务域名结果
+type SetWebviewDomainResp struct {
+	util.CommonError
+}
+
+// SetWebviewDomain 配置小程序业务域名
+func (basic *Basic) SetWebviewDomain(param *SetWebviewDomainParam) (*SetWebviewDomainResp, error) {
+	ak, err := basic.GetAuthrAccessToken(basic.appID)
+	if err != nil {
+		return nil, err
+	}
+	url := fmt.Sprintf("%s?access_token=%s", setWebviewDomainURL, ak)
+	data, err := util.PostJSON(url, param)
+	if err != nil {
+		return nil, err
+	}
+	res := &SetWebviewDomainResp{}
+	err = util.DecodeWithError(data, res, "SetWebviewDomain")
+	return res, err
+}
+
 // CheckNickNameResp 小程序名称检测结果
 type CheckNickNameResp struct {
 	util.CommonError
@@ -109,7 +137,7 @@ type CheckNickNameResp struct {
 // CheckNickName 检测微信认证的名称是否符合规则
 // ref: https://developers.weixin.qq.com/doc/oplatform/openApi/OpenApiDoc/miniprogram-management/basic-info-management/checkNickName.html
 func (basic *Basic) CheckNickName(nickname string) (*CheckNickNameResp, error) {
-	ak, err := basic.GetAuthrAccessToken(basic.AppID)
+	ak, err := basic.GetAuthrAccessToken(basic.appID)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +182,7 @@ func (basic *Basic) SetNickName(nickname string) (*SetNickNameResp, error) {
 // SetNickNameFull 设置小程序名称
 // ref: https://developers.weixin.qq.com/doc/oplatform/openApi/OpenApiDoc/miniprogram-management/basic-info-management/setNickName.html
 func (basic *Basic) SetNickNameFull(param *SetNickNameParam) (*SetNickNameResp, error) {
-	ak, err := basic.GetAuthrAccessToken(basic.AppID)
+	ak, err := basic.GetAuthrAccessToken(basic.appID)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +204,7 @@ type SetSignatureResp struct {
 // SetSignature 小程序修改功能介绍
 // ref: https://developers.weixin.qq.com/doc/oplatform/openApi/OpenApiDoc/miniprogram-management/basic-info-management/setSignature.html
 func (basic *Basic) SetSignature(signature string) error {
-	ak, err := basic.GetAuthrAccessToken(basic.AppID)
+	ak, err := basic.GetAuthrAccessToken(basic.appID)
 	if err != nil {
 		return err
 	}
@@ -199,7 +227,7 @@ type GetSearchStatusResp struct {
 // GetSearchStatus 查询小程序当前是否可被搜索
 // ref: https://developers.weixin.qq.com/doc/oplatform/openApi/OpenApiDoc/miniprogram-management/basic-info-management/getSearchStatus.html
 func (basic *Basic) GetSearchStatus(signature string) (*GetSearchStatusResp, error) {
-	ak, err := basic.GetAuthrAccessToken(basic.AppID)
+	ak, err := basic.GetAuthrAccessToken(basic.appID)
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +250,7 @@ type SetSearchStatusResp struct {
 // status: 1 表示不可搜索，0 表示可搜索
 // ref: https://developers.weixin.qq.com/doc/oplatform/openApi/OpenApiDoc/miniprogram-management/basic-info-management/setSearchStatus.html
 func (basic *Basic) SetSearchStatus(status int) error {
-	ak, err := basic.GetAuthrAccessToken(basic.AppID)
+	ak, err := basic.GetAuthrAccessToken(basic.appID)
 	if err != nil {
 		return err
 	}
@@ -265,7 +293,7 @@ func (basic *Basic) SetHeadImage(imgMediaID string) error {
 // 新增临时素材: https://developers.weixin.qq.com/doc/offiaccount/Asset_Management/New_temporary_materials.html
 // ref: https://developers.weixin.qq.com/doc/oplatform/openApi/OpenApiDoc/miniprogram-management/basic-info-management/setHeadImage.html
 func (basic *Basic) SetHeadImageFull(param *SetHeadImageParam) error {
-	ak, err := basic.GetAuthrAccessToken(basic.AppID)
+	ak, err := basic.GetAuthrAccessToken(basic.appID)
 	if err != nil {
 		return err
 	}

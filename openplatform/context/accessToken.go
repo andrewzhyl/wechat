@@ -250,26 +250,27 @@ func (ctx *Context) GetAuthrAccessToken(appid string) (string, error) {
 
 // AuthorizerInfo 授权方详细信息
 type AuthorizerInfo struct {
-	NickName        string `json:"nick_name"`
-	HeadImg         string `json:"head_img"`
-	ServiceTypeInfo ID     `json:"service_type_info"`
-	VerifyTypeInfo  ID     `json:"verify_type_info"`
-	UserName        string `json:"user_name"`
-	PrincipalName   string `json:"principal_name"`
-	BusinessInfo    struct {
+	NickName        string   `json:"nick_name"`
+	HeadImg         string   `json:"head_img"`
+	ServiceTypeInfo ID       `json:"service_type_info"` // 公众号/小程序类型
+	VerifyTypeInfo  ID       `json:"verify_type_info"`  // 公众号/小程序认证类型
+	UserName        string   `json:"user_name"`         // 原始 ID
+	PrincipalName   string   `json:"principal_name"`    // 主体名称
+	Signature       string   `json:"signature"`         // 小程序帐号介绍
+	BusinessInfo    struct { // 用以了解功能的开通状况（0代表未开通，1代表已开通）
 		OpenStore string `json:"open_store"`
 		OpenScan  string `json:"open_scan"`
-		OpenPay   string `json:"open_pay"`
+		OpenPay   string `json:"open_pfay"`
 		OpenCard  string `json:"open_card"`
 		OpenShake string `json:"open_shake"`
 	}
-	Alias     string `json:"alias"`
-	QrcodeURL string `json:"qrcode_url"`
+	Alias     string `json:"alias"`      // 公众号所设置的微信号，可能为空
+	QrcodeURL string `json:"qrcode_url"` // 二维码图片的 URL
 
-	MiniProgramInfo *MiniProgramInfo       `json:"MiniProgramInfo"`
-	RegisterType    int                    `json:"register_type"`
-	AccountStatus   int                    `json:"account_status"`
-	BasicConfig     *AuthorizerBasicConfig `json:"basic_config"`
+	MiniProgramInfo *MiniProgramInfo       `json:"MiniProgramInfo"` // 小程序配置信息
+	RegisterType    int                    `json:"register_type"`   // 小程序注册方式
+	AccountStatus   int                    `json:"account_status"`  // 帐号状态
+	BasicConfig     *AuthorizerBasicConfig `json:"basic_config"`    // 基础配置信息
 }
 
 // AuthorizerBasicConfig 授权账号的基础配置结构体
